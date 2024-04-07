@@ -27,8 +27,23 @@ model3 = RandomForestRegressor(n_estimators= 100, criterion='absolute_error', ra
 model4 = RandomForestRegressor(n_estimators= 200, min_samples_split=20, random_state=0)
 model5 = RandomForestRegressor(n_estimators= 50, max_depth=7, random_state=0)
 
-model = [model1, model2, model3, model4, model5]
+models = [model1, model2, model3, model4, model5]
 
-for m in model:
+best = -1
+model = None
+
+for m in models:
     temp = best_model(m, X_train, X_val, y_train, y_val)
     print(temp)
+    if best == -1 or best > temp:
+        best = temp
+        model = m
+
+model.fit(X, y)
+
+predictions = model.predict(X_test)
+
+output = pd.DataFrame({'Id': X_test.index,
+                       'SalePrice': predictions
+})
+output.to_csv('submission4.csv', index=False)
