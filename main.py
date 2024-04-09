@@ -3,6 +3,7 @@ from sklearn.model_selection import train_test_split
 from sklearn.ensemble import RandomForestRegressor
 from sklearn.metrics import mean_absolute_error
 from sklearn.impute import SimpleImputer
+from sklearn.preprocessing import OrdinalEncoder,OneHotEncoder
 
 #find the mean of each model
 def best_model(model , X_train, X_val, y_train, y_val):
@@ -10,6 +11,35 @@ def best_model(model , X_train, X_val, y_train, y_val):
     prediction = model.predict(X_val)
     return mean_absolute_error(prediction, y_val)
 
+#Categorical Values
+#Ordinal Encoding
+def ordinal_encoding(X):
+    i = (X.dtypes == 'object')
+    objects_col = list(i[i].index)
+    
+    ordinal_enc = OrdinalEncoder()
+    
+    X[objects_col] = ordinal_enc.fit_transform(X[objects_col])
+    return X[objects_col]
+
+#One-Hot Encoding
+def oneHot_encoding(X):
+    i = (X.dtypes == 'object')
+    objects_col = list(i[i].index)
+    
+    oh_encoder = OneHotEncoder(handle_unknown='ignore', sparse=False)
+    new_X = pd.DataFrame(oh_encoder.fit_transform(X[objects_col]))
+    new_X.index = X.index
+    
+    X = X.drop(objects_col, axis=1)
+    X = pd.concat([X, new_X], axis=1)
+    
+    X.columns = X.columns.astype('str')
+    return X    
+
+#drop column
+def drop_object(X):
+    return X.select_dtypes(exclude=['object'])
 
 #work with missing value
 #First aproach : Drop Columns
@@ -54,9 +84,13 @@ X_full.dropna(axis=0, subset=['SalePrice'], inplace=True)
 y = X_full.SalePrice
 X_full.drop(['SalePrice'],axis=1,inplace=True)
 
-#only use numerical predictors
-X = X_full.select_dtypes(exclude=['object'])
-X_test = X_test_full.select_dtypes(exclude=['object'])
+# #only use numerical predictors
+# X = ordinal_encoding(X_full)
+# X_test = ordinal_encoding(X_test_full)
+
+X = drop_object(X_full)
+X_test = drop_object(X_test_full)
+
 
 #select the features for the model
 # y = X_full.SalePrice
@@ -112,4 +146,4 @@ predictions = model.predict(finall_X_test)
 output = pd.DataFrame({'Id': X_test.index,
                        'SalePrice': predictions
 })
-output.to_csv('submission_imputer.csv', index=False)
+output.to_csv('submission_drop.csv', index=False)
