@@ -136,10 +136,10 @@ for m in models:
         best = temp
         model = m
 
-# # ordinal encode training
-# X, X_test = ordinal_encoding(X, X_test)
-# OneHotEncode
-X, X_test = oneHot_encoding(X,X_test)
+# ordinal encode training
+X, X_test = ordinal_encoding(X, X_test)
+# # OneHotEncode
+# X, X_test = oneHot_encoding(X,X_test)
 
 
 #train the model
@@ -157,4 +157,4 @@ predictions = model.predict(finall_X_test)
 output = pd.DataFrame({'Id': X_test.index,
                        'SalePrice': predictions
 })
-output.to_csv('submission_oneHot_encode.csv', index=False)
+output.to_csv('submission_ordinal_encode.csv', index=False)
