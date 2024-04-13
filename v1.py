@@ -65,7 +65,7 @@ def drop_columns_missing_values(X_train, X_val) :
 #Second aproach : Imputation
 #replace missing value with the mean value
 def imputation(X_train, X_val):
-    my_imputer = SimpleImputer()
+    my_imputer = SimpleImputer(strategy='most_frequent')
     
     new_X_train = pd.DataFrame(my_imputer.fit_transform(X_train))
     new_X_val = pd.DataFrame(my_imputer.transform(X_val))
@@ -109,32 +109,33 @@ X_train, X_val, y_train, y_val = train_test_split(X, y, train_size=0.8, test_siz
 # X_train, X_val = extend_imputation(X_train=X_train, X_val=X_val)
 
 #only use numerical predictors
-# X_train, X_val = ordinal_encoding(X_train, X_val)
-X_train, X_val = oneHot_encoding(X_train, X_val)
+X_train, X_val = ordinal_encoding(X_train, X_val)
+# X_train, X_val = oneHot_encoding(X_train, X_val)
 
 #columns with missing values
 # missing_val_count = (X_train.isnull().sum())
 # print(missing_val_count)
 
-#create many model and chose the best
-model1 = RandomForestRegressor(n_estimators= 50, random_state=0)
-model2 = RandomForestRegressor(n_estimators= 100, random_state=0)
-model3 = RandomForestRegressor(n_estimators= 100, criterion='absolute_error', random_state=0)
-model4 = RandomForestRegressor(n_estimators= 200, min_samples_split=20, random_state=0)
-model5 = RandomForestRegressor(n_estimators= 50, max_depth=7, random_state=0)
+# #create many model and chose the best
+# model1 = RandomForestRegressor(n_estimators= 50, random_state=0)
+# model2 = RandomForestRegressor(n_estimators= 100, random_state=0)
+# model3 = RandomForestRegressor(n_estimators= 100, criterion='absolute_error', random_state=0)
+# model4 = RandomForestRegressor(n_estimators= 200, min_samples_split=20, random_state=0)
+# model5 = RandomForestRegressor(n_estimators= 50, max_depth=7, random_state=0)
 
-models = [model1, model2, model3, model4, model5]
+# models = [model1, model2, model3, model4, model5]
 
-best = -1
-model = None
 
-#iterarte for the models and compare the mean to take the best
-for m in models:
-    temp = best_model(m, X_train, X_val, y_train, y_val)
-    print(temp)
-    if best == -1 or best > temp:
-        best = temp
-        model = m
+# best = -1
+model = RandomForestRegressor(n_estimators=250, random_state=0)
+
+# #iterarte for the models and compare the mean to take the best
+# for m in models:
+#     temp = best_model(m, X_train, X_val, y_train, y_val)
+#     print(temp)
+#     if best == -1 or best > temp:
+#         best = temp
+#         model = m
 
 # ordinal encode training
 X, X_test = ordinal_encoding(X, X_test)
@@ -152,6 +153,7 @@ model.fit(finall_X, y)
 finall_X_test = pd.DataFrame(imputer.fit_transform(X_test))
 finall_X_test.columns = X_test.columns
 predictions = model.predict(finall_X_test)
+
 
 #create output archive
 output = pd.DataFrame({'Id': X_test.index,
